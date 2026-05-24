@@ -1,10 +1,10 @@
 # MX Space Core
 
-[![GitHub stars](https://img.shields.io/github/stars/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues-raw/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/issues)
-[![Build Core](https://github.com/mx-space/core/actions/workflows/ci.yml/badge.svg)](https://github.com/mx-space/core/actions/workflows/ci.yml)
-[![Release](https://github.com/mx-space/core/actions/workflows/release.yml/badge.svg)](https://github.com/mx-space/core/actions/workflows/release.yml)
-[![GitHub license](https://img.shields.io/github/license/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues-raw/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/issues)
+[![Build Core](https://github.com/mix-space-lts/core/actions/workflows/ci.yml/badge.svg)](https://github.com/mix-space-lts/core/actions/workflows/ci.yml)
+[![Release](https://github.com/mix-space-lts/core/actions/workflows/release.yml/badge.svg)](https://github.com/mix-space-lts/core/actions/workflows/release.yml)
+[![GitHub license](https://img.shields.io/github/license/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/blob/main/LICENSE)
 [![wakatime](https://wakatime.com/badge/user/9213dc96-df0d-4e66-b0bb-50f9e04e988c/project/8afd37d1-7501-426f-824b-50aeeb96bb6f.svg)](https://wakatime.com/badge/user/9213dc96-df0d-4e66-b0bb-50f9e04e988c/project/8afd37d1-7501-426f-824b-50aeeb96bb6f)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/innei/mx-server)](https://hub.docker.com/repository/docker/innei/mx-server)
 
@@ -28,7 +28,7 @@ Third-party integrations:
 ## Docker Deployment (recommended)
 
 ```bash
-git clone https://github.com/mx-space/core.git mx-core
+git clone https://github.com/mix-space-lts/core.git mx-core
 cd mx-core
 cp docker-compose.server.yml docker-compose.prod.yml
 # Edit docker-compose.prod.yml — set JWT_SECRET, ALLOWED_ORIGINS, etc.
@@ -51,7 +51,7 @@ Requirements:
 - PostgreSQL 16+
 - Redis 7.x
 
-Download the release bundle from [GitHub Releases](https://github.com/mx-space/core/releases/latest), extract it, then run:
+Download the release bundle from [GitHub Releases](https://github.com/mix-space-lts/core/releases/latest), extract it, then run:
 
 ```
 node index.js
@@ -66,7 +66,7 @@ All dependencies are bundled into the artifact — no `node_modules` required.
 
 ```bash
 corepack enable  # enable pnpm
-git clone https://github.com/mx-space/core mx-core
+git clone https://github.com/mix-space-lts/core mx-core
 cd mx-core
 pnpm i
 docker compose up -d postgres redis  # start PostgreSQL + Redis

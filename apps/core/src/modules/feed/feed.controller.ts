@@ -87,7 +87,7 @@ ${
 <language>zh-CN</language>
 <copyright>© ${author} </copyright>
 <pubDate>${now.toUTCString()}</pubDate>
-<generator>Mix Space CMS (https://github.com/mx-space)</generator>
+<generator>Mix Space CMS (https://github.com/mix-space-lts)</generator>
 <docs>https://mx-space.js.org</docs>
 <image>
     <url>${xss(avatar || '')}</url>

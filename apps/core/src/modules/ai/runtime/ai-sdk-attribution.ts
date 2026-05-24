@@ -4,7 +4,7 @@
  */
 export const AI_SDK_ATTRIBUTION_APP_NAME = 'Mix Space' as const
 export const AI_SDK_ATTRIBUTION_APP_URL =
-  'https://github.com/mx-space/core' as const
+  'https://github.com/mix-space-lts/core' as const
 
 export function buildAiSdkDefaultHeaders(): Record<string, string> {
   return {
