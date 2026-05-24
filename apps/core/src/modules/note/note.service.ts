@@ -7,7 +7,6 @@ import {
   BizException,
   BusinessException,
 } from '~/common/exceptions/biz.exception'
-import { CannotFindException } from '~/common/exceptions/cant-find.exception'
 import { NoContentCanBeModifiedException } from '~/common/exceptions/no-content-canbe-modified.exception'
 import { ArticleTypeEnum } from '~/constants/article.constant'
 import { BusinessEvents, EventScope } from '~/constants/business-event.constant'
@@ -250,7 +249,7 @@ export class NoteService {
 
   async getLatestNoteId() {
     const note = await this.noteRepository.getLatestVisible()
-    if (!note) throw new CannotFindException()
+    if (!note) return null
     return { nid: note.nid, id: note.id }
   }
 
