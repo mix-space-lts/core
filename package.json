@@ -5,10 +5,10 @@
     "node": ">=22"
   },
   "license": "AGPLv3",
-  "homepage": "https://github.com/mx-space/core#readme",
+  "homepage": "https://github.com/mix-space-lts/core#readme",
   "repository": {
-    "directory": "mx-space/core",
-    "url": "https://github.com/mx-space/core"
+    "directory": "mix-space-lts/core",
+    "url": "https://github.com/mix-space-lts/core"
   },
   "author": "Innei <https://innei.in>",
   "scripts": {
