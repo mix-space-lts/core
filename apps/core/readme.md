@@ -1,10 +1,10 @@
 # Mix Space Server
 
-[![GitHub stars](https://img.shields.io/github/stars/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues-raw/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/issues)
-[![Build Core](https://github.com/mx-space/core/actions/workflows/ci.yml/badge.svg)](https://github.com/mx-space/core/actions/workflows/ci.yml)
-[![Release](https://github.com/mx-space/core/actions/workflows/release.yml/badge.svg)](https://github.com/mx-space/core/actions/workflows/release.yml)
-[![GitHub license](https://img.shields.io/github/license/mx-space/mx-server.svg?style=flat)](https://github.com/mx-space/mx-server/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues-raw/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/issues)
+[![Build Core](https://github.com/mix-space-lts/core/actions/workflows/ci.yml/badge.svg)](https://github.com/mix-space-lts/core/actions/workflows/ci.yml)
+[![Release](https://github.com/mix-space-lts/core/actions/workflows/release.yml/badge.svg)](https://github.com/mix-space-lts/core/actions/workflows/release.yml)
+[![GitHub license](https://img.shields.io/github/license/mix-space-lts/core.svg?style=flat)](https://github.com/mix-space-lts/core/blob/main/LICENSE)
 [![wakatime](https://wakatime.com/badge/user/9213dc96-df0d-4e66-b0bb-50f9e04e988c/project/8afd37d1-7501-426f-824b-50aeeb96bb6f.svg)](https://wakatime.com/badge/user/9213dc96-df0d-4e66-b0bb-50f9e04e988c/project/8afd37d1-7501-426f-824b-50aeeb96bb6f)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/innei/mx-server)](https://hub.docker.com/repository/docker/innei/mx-server)
 
@@ -27,7 +27,17 @@
 - Bark 推送
 - 邮件订阅
 
-## Docker 部署（建议）
+## Docker Deployment (recommended)
+
+```bash
+git clone https://github.com/mix-space-lts/core.git mx-core
+cd mx-core
+cp docker-compose.server.yml docker-compose.prod.yml
+# Edit docker-compose.prod.yml — set JWT_SECRET, ALLOWED_ORIGINS, etc.
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Or pull the prebuilt image directly:
 
 ```bash
 cd
@@ -43,18 +53,9 @@ docker-compose up -d
 
 - Node.js 22+
 - MongoDB
-- Redis
+- Redis 7.x
 
-现有 macOS(x86)、Linux(x86) 的已构建产物。使用以下脚本可免手动构建直接运行。
-
-```sh
-curl https://cdn.jsdelivr.net/gh/mx-space/mx-server@master/scripts/download-latest-asset.js >> download.js
-node ./download.js
-cd mx-server
-node index.js
-```
-
-或者手动下载 [release](https://github.com/mx-space/mx-server/releases/latest)，之后解压然后
+从 [GitHub Releases](https://github.com/mix-space-lts/core/releases/latest) 下载已构建产物, 解压并运行:
 
 ```
 node index.js
@@ -67,8 +68,9 @@ node index.js
 
 ## 开发环境
 
-```
-git clone https://github.com/mx-space/core mx-core
+```bash
+corepack enable  # enable pnpm
+git clone https://github.com/mix-space-lts/core mx-core
 cd mx-core
 pnpm i
 pnpm dev

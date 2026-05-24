@@ -5,9 +5,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/mx-space/core/releases"><img src="https://img.shields.io/github/v/release/mx-space/core?style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/mx-space/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/mx-space/core/ci.yml?style=flat-square&label=CI" alt="CI" /></a>
-  <a href="https://github.com/mx-space/core/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3%20%2B%20MIT-blue?style=flat-square" alt="License" /></a>
+  <a href="https://github.com/mix-space-lts/core/releases"><img src="https://img.shields.io/github/v/release/mix-space-lts/core?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/mix-space-lts/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/mix-space-lts/core/ci.yml?style=flat-square&label=CI" alt="CI" /></a>
+  <a href="https://github.com/mix-space-lts/core/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3%20%2B%20MIT-blue?style=flat-square" alt="License" /></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D22-brightgreen?style=flat-square" alt="Node.js" /></a>
   <a href="https://hub.docker.com/r/innei/mx-server"><img src="https://img.shields.io/docker/pulls/innei/mx-server?style=flat-square" alt="Docker Pulls" /></a>
 </p>
@@ -119,7 +119,7 @@ The fastest way to get a production instance running:
 
 ```bash
 # Clone and enter the project
-git clone https://github.com/mx-space/core.git && cd core
+git clone https://github.com/mix-space-lts/core.git && cd core
 
 # Edit environment variables
 cp docker-compose.server.yml docker-compose.prod.yml
@@ -209,8 +209,8 @@ v10 includes a breaking auth system refactor. See [Upgrading to v10](./docs/migr
 
 | Project | Description |
 |---------|-------------|
-| [Shiroi](https://github.com/innei-dev/Shiroi) | Next.js frontend |
-| [mx-admin](https://github.com/mx-space/mx-admin) | Vue 3 admin dashboard |
+| [Shiro](https://github.com/mix-space-lts/Shiro) | Next.js frontend |
+| [mx-admin](https://github.com/mix-space-lts/mx-admin) | Vue 3 admin dashboard |
 | [@mx-space/api-client](./packages/api-client) | TypeScript API client SDK |
 | [@haklex/rich-headless](https://github.com/innei/haklex) | Lexical editor (server-side) |
 
