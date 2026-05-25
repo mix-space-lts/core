@@ -43,7 +43,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            innei/mx-server
+            ghcr.io/mix-space-lts/core
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}

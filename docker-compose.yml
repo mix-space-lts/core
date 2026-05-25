@@ -17,7 +17,7 @@ x-mx-env: &mx-env
 services:
   app:
     container_name: mx-server
-    image: innei/mx-server:latest
+    image: ghcr.io/mix-space-lts/core:latest
     environment: *mx-env
     volumes:
       - ./data/mx-space:/root/.mx-space
@@ -44,7 +44,7 @@ services:
   # starting. See docs/superpowers/specs/2026-05-05-database-migration-release-phase-design.md.
   mx-migrate:
     container_name: mx-migrate
-    image: innei/mx-server:latest
+    image: ghcr.io/mix-space-lts/core:latest
     command: ['node', 'migrate.mjs']
     environment: *mx-env
     depends_on:
