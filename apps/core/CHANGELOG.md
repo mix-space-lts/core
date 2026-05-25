@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## LTS Fork (2026-06-30)
+
+> This is a fork of [mx-space/core](https://github.com/mx-space/core) maintained under the Mix Space LTS project.
+> See [github.com/mix-space-lts](https://github.com/mix-space-lts) for details.
+
+### Changes
+- Switched Docker image registry from `innei/mx-server` (Docker Hub) to `ghcr.io/mix-space-lts/core` (GHCR)
+- Updated CI/Release workflows for GHCR authentication
+- Updated docker-compose.yml image references
+- Replaced all upstream repo references with `mix-space-lts` organization
+
+
+
 ## [10.5.3](https://github.com/mx-space/core/compare/v10.5.2...v10.5.3) (2026-03-15)
 
 
