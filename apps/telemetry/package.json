@@ -1,5 +1,5 @@
 {
-  "name": "@mx-space/telemetry",
+  "name": "@mix-space-lts/telemetry",
   "version": "1.0.0",
   "private": true,
   "scripts": {

@@ -1,4 +1,4 @@
-# @mx-space/api-client
+# @mix-space-lts/api-client
 
 A framework-agnostic TypeScript/JavaScript SDK for the MX Space server (MServer v3). It wraps common API endpoints with typed request methods and response types for fast frontend and server-side integration.
 
@@ -32,13 +32,13 @@ A framework-agnostic TypeScript/JavaScript SDK for the MX Space server (MServer 
 From the monorepo root (recommended):
 
 ```bash
-pnpm add @mx-space/api-client
+pnpm add @mix-space-lts/api-client
 ```
 
 Or with npm:
 
 ```bash
-npm install @mx-space/api-client
+npm install @mix-space-lts/api-client
 ```
 
 The package is **framework-agnostic** and does not bundle a specific HTTP client. You must provide an adapter (e.g. Axios or fetch). Install the HTTP library you use:
@@ -63,8 +63,8 @@ import {
   NoteController,
   AggregateController,
   CategoryController,
-} from '@mx-space/api-client'
-import { axiosAdaptor } from '@mx-space/api-client/adaptors/axios'
+} from '@mix-space-lts/api-client'
+import { axiosAdaptor } from '@mix-space-lts/api-client/adaptors/axios'
 
 const endpoint = 'https://api.example.com/v2'
 const client = createClient(axiosAdaptor)(endpoint)
@@ -108,15 +108,15 @@ $axios.interceptors.request.use((config) => {
 
 ## Adapters
 
-Official adapters live under `@mx-space/api-client/adaptors/`:
+Official adapters live under `@mix-space-lts/api-client/adaptors/`:
 
 | Adapter        | Import path                              | Notes                    |
 |----------------|------------------------------------------|--------------------------|
-| **Axios**      | `@mx-space/api-client/adaptors/axios`   | Exposes `axiosAdaptor.default` (AxiosInstance). |
-| **umi-request**| `@mx-space/api-client/adaptors/umi-request` | For umi-request users.  |
-| **Fetch**      | `@mx-space/api-client/adaptors/fetch`   | Uses global `fetch`; no extra dependency. |
+| **Axios**      | `@mix-space-lts/api-client/adaptors/axios`   | Exposes `axiosAdaptor.default` (AxiosInstance). |
+| **umi-request**| `@mix-space-lts/api-client/adaptors/umi-request` | For umi-request users.  |
+| **Fetch**      | `@mix-space-lts/api-client/adaptors/fetch`   | Uses global `fetch`; no extra dependency. |
 
-**Custom adapter**: Implement `IRequestAdapter` from `@mx-space/api-client` (methods: `get`, `post`, `put`, `patch`, `delete`; optional `default`). See `src/adaptors/axios.ts` and `src/adaptors/umi-request.ts` for reference.
+**Custom adapter**: Implement `IRequestAdapter` from `@mix-space-lts/api-client` (methods: `get`, `post`, `put`, `patch`, `delete`; optional `default`). See `src/adaptors/axios.ts` and `src/adaptors/umi-request.ts` for reference.
 
 ---
 
@@ -149,8 +149,8 @@ Inject one or more controllers so the client exposes them (e.g. `client.post`, `
 **Example — inject all controllers:**
 
 ```ts
-import { createClient, allControllers } from '@mx-space/api-client'
-import { axiosAdaptor } from '@mx-space/api-client/adaptors/axios'
+import { createClient, allControllers } from '@mix-space-lts/api-client'
+import { axiosAdaptor } from '@mix-space-lts/api-client/adaptors/axios'
 
 const client = createClient(axiosAdaptor)('https://api.example.com/v2')
 client.injectControllers(allControllers)
@@ -241,8 +241,8 @@ v2 introduces breaking changes; see migration below.
 - No re-export of `camelcase-keys`. Use the built-in helper or install yourself:
 
 ```diff
-- import { camelcaseKeysDeep, camelcaseKeys } from '@mx-space/api-client'
-+ import { simpleCamelcaseKeys as camelcaseKeysDeep } from '@mx-space/api-client'
+- import { camelcaseKeysDeep, camelcaseKeys } from '@mix-space-lts/api-client'
++ import { simpleCamelcaseKeys as camelcaseKeysDeep } from '@mix-space-lts/api-client'
 ```
 
 ---
@@ -272,7 +272,7 @@ pnpm i
 **Exports:**
 
 - Main: `createClient`, `RequestError`, controllers, models, DTOs, `simpleCamelcaseKeys`, `HTTPClient` type, `IRequestAdapter` type.
-- Adapters: `@mx-space/api-client/adaptors/axios`, `/adaptors/umi-request`, `/adaptors/fetch`.
+- Adapters: `@mix-space-lts/api-client/adaptors/axios`, `/adaptors/umi-request`, `/adaptors/fetch`.
 
 ---
 

@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+
 import { defineConfig } from 'tsdown'
 
 const __dirname = new URL(import.meta.url).pathname.replace(/\/[^/]*$/, '')
@@ -16,7 +17,7 @@ export default defineConfig({
   dts: true,
   format: ['cjs', 'esm'],
   onSuccess() {
-    // Replace declare module '../core/client' with declare module '@mx-space/api-client'
+    // Replace declare module '../core/client' with declare module '@mix-space-lts/api-client'
     const PKG = JSON.parse(
       readFileSync(path.resolve(__dirname, './package.json'), 'utf-8'),
     )

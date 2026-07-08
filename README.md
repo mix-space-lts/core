@@ -50,8 +50,8 @@ mx-core/
 ├── apps/
 │   └── core/                 # Main server application (NestJS)
 ├── packages/
-│   ├── api-client/           # @mx-space/api-client — SDK for frontend & third-party clients
-│   └── webhook/              # @mx-space/webhook — Webhook integration SDK
+│   ├── api-client/           # @mix-space-lts/api-client — SDK for frontend & third-party clients
+│   └── webhook/              # @mix-space-lts/webhook — Webhook integration SDK
 ├── docker-compose.yml        # Development stack (Mongo + Redis)
 ├── dockerfile                # Multi-stage production build
 └── docker-compose.server.yml # Production deployment template
@@ -211,7 +211,7 @@ v10 includes a breaking auth system refactor. See [Upgrading to v10](./docs/migr
 |---------|-------------|
 | [Shiro](https://github.com/mix-space-lts/Shiro) | Next.js frontend |
 | [mx-admin](https://github.com/mix-space-lts/mx-admin) | Vue 3 admin dashboard |
-| [@mx-space/api-client](./packages/api-client) | TypeScript API client SDK |
+| [@mix-space-lts/api-client](./packages/api-client) | TypeScript API client SDK |
 | [@haklex/rich-headless](https://github.com/innei/haklex) | Lexical editor (server-side) |
 
 ## License

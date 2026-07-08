@@ -1,5 +1,5 @@
 {
-  "name": "@mx-space/core",
+  "name": "@mix-space-lts/core",
   "version": "10.5.3",
   "type": "module",
   "private": true,
@@ -7,17 +7,17 @@
     "node": ">=22"
   },
   "license": "AGPLv3",
-  "homepage": "https://github.com/mx-space/core/tree/master/apps/core#readme",
+  "homepage": "https://github.com/mix-space-lts/core/tree/master/apps/core#readme",
   "repository": {
-    "directory": "mx-space/core",
-    "url": "https://github.com/mx-space/core"
+    "directory": "mix-space-lts/core",
+    "url": "https://github.com/mix-space-lts/core"
   },
   "author": "Innei <https://innei.in>",
   "dashboard": {
-    "repo": "mx-space/mx-admin",
+    "repo": "mix-space-lts/mx-admin",
     "version": "6.4.0"
   },
-  "issues": "https://github.com/mx-space/core/issues",
+  "issues": "https://github.com/mix-space-lts/core/issues",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "npm run bundle",

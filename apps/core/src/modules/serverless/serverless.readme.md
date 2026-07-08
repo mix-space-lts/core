@@ -10,7 +10,7 @@ async function handler(context, require) {}
 
 ```js
 async function handler() {
-  const extra = await require('@mx-space/extra')
+  const extra = await require('@mix-space-lts/extra')
 
   const { BiliClient } = extra
   const bl = await context.getOwner().then((user) => user.socialIds.bilibili)

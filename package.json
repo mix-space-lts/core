@@ -62,5 +62,5 @@
       "prettier --ignore-path ./.prettierignore --write "
     ]
   },
-  "issues": "https://github.com/mx-space/core/issues"
+  "issues": "https://github.com/mix-space-lts/core/issues"
 }
