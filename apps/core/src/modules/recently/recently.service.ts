@@ -173,24 +173,26 @@ export class RecentlyService {
         $lookup: {
           from: 'comments',
           as: 'comment',
-          foreignField: 'ref',
-          localField: '_id',
+          let: { refId: '$_id' },
           pipeline: [
             {
-              $match: commentShouldAudit
-                ? {
-                    state: CommentState.Read,
-                  }
-                : {
-                    $or: [
-                      {
-                        state: CommentState.Read,
-                      },
-                      {
-                        state: CommentState.Unread,
-                      },
-                    ],
-                  },
+              $match: {
+                $expr: { $eq: ['$ref', '$$refId'] },
+                ...(commentShouldAudit
+                  ? {
+                      state: CommentState.Read,
+                    }
+                  : {
+                      $or: [
+                        {
+                          state: CommentState.Read,
+                        },
+                        {
+                          state: CommentState.Unread,
+                        },
+                      ],
+                    }),
+              },
             },
           ],
         },
