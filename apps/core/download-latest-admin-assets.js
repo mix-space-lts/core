@@ -15,7 +15,7 @@ const {
   dashboard: { repo, version },
 } = require('./package.json')
 
-const url = `https://github.com/${repo}/releases/latest/download/release.zip`
+const url = `https://github.com/${repo}/releases/download/${version}/release.zip`
 ;(async () => {
   const buffer = await fetch(url).then((res) => res.arrayBuffer())
   const zipPath = join(process.cwd(), 'admin-release.zip')
@@ -24,7 +24,7 @@ const url = `https://github.com/${repo}/releases/latest/download/release.zip`
   const files = readdirSync(process.cwd())
   for (const file of files) {
     const stat = statSync(join(process.cwd(), file))
-    console.log(
+    console.info(
       `${stat.isDirectory() ? 'd' : '-'} ${file} (${stat.size} bytes)`,
     )
   }

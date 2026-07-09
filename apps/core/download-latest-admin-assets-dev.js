@@ -9,7 +9,7 @@ const {
   dashboard: { repo, version },
 } = require('./package.json')
 
-const endpoint = `https://api.github.com/repos/${repo}/releases/tags/v${version}`
+const endpoint = `https://api.github.com/repos/${repo}/releases/tags/${version}`
 ;(async () => {
   const json = await fetch(endpoint).then((res) => res.json())
   const downloadUrl = json.assets.find(

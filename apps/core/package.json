@@ -15,7 +15,7 @@
   "author": "Innei <https://innei.in>",
   "dashboard": {
     "repo": "mix-space-lts/mx-admin",
-    "version": "6.4.0"
+    "version": "latest"
   },
   "issues": "https://github.com/mix-space-lts/core/issues",
   "scripts": {

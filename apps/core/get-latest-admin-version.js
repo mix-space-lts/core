@@ -2,6 +2,7 @@ import { writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import axios from 'axios'
 
 const require = createRequire(import.meta.url)
@@ -11,6 +12,7 @@ const {
   dashboard: { repo },
 } = require('./package.json')
 const Package = require('./package.json')
+
 const endpoint = `https://api.github.com/repos/${repo}/releases/latest`
 
 const latestVersion = async () => {
@@ -28,7 +30,7 @@ const latestVersion = async () => {
       console.error(error.message)
       process.exit(1)
     })
-  return res.data.tag_name.replace(/^v/, '')
+  return res.data.tag_name
 }
 async function main() {
   const version = await latestVersion()
@@ -40,7 +42,7 @@ async function main() {
     JSON.stringify(Package, null, 2),
   )
 
-  console.log('Updated version to', version)
+  console.info('Updated version to', version)
 }
 
 main()
