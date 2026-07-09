@@ -1,0 +1,59 @@
+# Publish @mix-space-lts/webhook to npm using Trusted Publishing (OIDC)
+# No NPM_TOKEN needed — relies on GitHub ↔ npm OIDC trust.
+#
+# Before first publish:
+#   1. Create npm org:  https://www.npmjs.com/org/create  (pick "mix-space-lts")
+#   2. Add Trusted Publisher on each package's npm settings page:
+#      https://www.npmjs.com/package/@mix-space-lts/webhook/access
+#      → "Require two-factor authentication or automation tokens" → "Add Trusted Publisher"
+#      → Owner: mix-space-lts  |  Repo: core  |  Workflow: publish-webhook.yml
+
+name: Publish @mix-space-lts/webhook
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 0.9.0). Leave empty to publish current package.json version.'
+        required: false
+        default: ''
+  push:
+    branches: [master, main]
+    paths:
+      - 'packages/webhook/package.json'
+
+permissions:
+  id-token: write   # required for npm provenance / OIDC
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/webhook
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@e94b270858c939f4f8b43f5c1438fa1d9a67ad5d
+        with:
+          run_install: true
+
+      - name: Bump version (if provided)
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          pnpm version "${{ github.event.inputs.version }}" --no-git-tag-version
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Publish to npm (Trusted Publishing)
+        run: |
+          npm publish --provenance --access public
