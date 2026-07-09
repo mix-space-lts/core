@@ -1,6 +1,9 @@
 {
-  "name": "@mx-space/webhook",
-  "version": "0.8.0",
+  "name": "@mix-space-lts/webhook",
+  "version": "0.8.2",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -40,6 +43,6 @@
       "npm publish --access=public"
     ],
     "tag": false,
-    "commit_message": "chore(release): bump @mx-space/webhook to v${NEW_VERSION}"
+    "commit_message": "chore(release): bump @mix-space-lts/webhook to v${NEW_VERSION}"
   }
 }

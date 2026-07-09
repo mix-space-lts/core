@@ -1,13 +1,16 @@
 {
-  "name": "@mx-space/api-client",
-  "version": "2.4.2",
-  "description": "A api client for mx-space server@next",
+  "name": "@mix-space-lts/api-client",
+  "version": "2.4.3",
+  "description": "A api client for mix-space-lts server@next",
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "license": "MIT",
   "author": "Innei",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist"
   ],
@@ -40,7 +43,7 @@
       "npm publish --access=public"
     ],
     "tag": false,
-    "commit_message": "chore(release): bump @mx-space/api-client to v${NEW_VERSION}"
+    "commit_message": "chore(release): bump @mix-space-lts/api-client to v${NEW_VERSION}"
   },
   "scripts": {
     "package": "rm -rf dist && tsdown",

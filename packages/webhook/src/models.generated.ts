@@ -163,6 +163,7 @@ export interface CommentModel extends BaseModel {
   location?: string
   isWhispers?: boolean
   avatar?: string
+  authProvider?: string
   meta?: string
   readerId?: string
   editedAt?: Date
