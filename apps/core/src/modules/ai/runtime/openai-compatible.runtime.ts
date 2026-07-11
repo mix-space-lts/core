@@ -43,21 +43,13 @@ export class OpenAICompatibleRuntime extends BaseRuntime {
     if (config.providerType === AIProviderType.OpenAI) {
       return config.endpoint || 'https://api.openai.com/v1'
     }
-    // OpenAI Compatible - endpoint is required
+    // OpenAI Compatible - endpoint is required, use as-is
     if (!config.endpoint) {
       throw new Error(
         `Endpoint is required for OpenAI-compatible provider: ${config.providerId}`,
       )
     }
-    return this.normalizeEndpoint(config.endpoint)
-  }
-
-  private normalizeEndpoint(endpoint: string): string {
-    let normalized = endpoint.replace(/\/+$/, '')
-    if (!normalized.endsWith('/v1')) {
-      normalized = `${normalized}/v1`
-    }
-    return normalized
+    return config.endpoint.replace(/\/+$/, '')
   }
 
   async generateText(
