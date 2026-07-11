@@ -95,6 +95,15 @@ jobs:
         run: npm run bundle
       - name: Test Bundle Server
         run: bash scripts/workflow/test-server.sh
+      - name: Zip Assets
+        run: |
+          sh apps/core/zip-asset.sh
+          mv release.zip release-linux.zip
+      - name: Upload Zip Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: release-linux
+          path: release-linux.zip
 
   test:
     name: Test
