@@ -1,6 +1,6 @@
 {
   "name": "@mix-space-lts/core",
-  "version": "10.5.3",
+  "version": "10.6.0",
   "type": "module",
   "private": true,
   "engines": {
@@ -15,7 +15,7 @@
   "author": "Innei <https://innei.in>",
   "dashboard": {
     "repo": "mix-space-lts/mx-admin",
-    "version": "v6.4.2"
+    "version": "v6.5.0"
   },
   "issues": "https://github.com/mix-space-lts/core/issues",
   "scripts": {
