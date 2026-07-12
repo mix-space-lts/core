@@ -1,0 +1,52 @@
+# ============================================
+# Mix Space LTS - 开发环境 Docker Compose
+# 仅包含 MongoDB 和 Redis，核心服务在本地运行
+# ============================================
+
+services:
+  mongo:
+    container_name: mx-dev-mongo
+    image: mongo:7
+    restart: unless-stopped
+    command: ["mongod", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mx-dev-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - mx-dev-network
+
+  redis:
+    container_name: mx-dev-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - mx-dev-redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - mx-dev-network
+
+volumes:
+  mx-dev-mongo-data:
+    name: mx-dev-mongo-data
+  mx-dev-redis-data:
+    name: mx-dev-redis-data
+
+networks:
+  mx-dev-network:
+    name: mx-dev-network
+    driver: bridge

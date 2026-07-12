@@ -33,6 +33,9 @@ importers:
       '@types/node':
         specifier: 25.3.3
         version: 25.3.3
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
@@ -42,6 +45,9 @@ importers:
       lint-staged:
         specifier: 16.3.1
         version: 16.3.1
+      mongodb:
+        specifier: 6.12.0
+        version: 6.12.0
       mongodb-memory-server:
         specifier: 11.0.1
         version: 11.0.1

@@ -1,54 +1,102 @@
 services:
-  app:
-    container_name: mx-server
+  mx-server:
     image: ghcr.io/mix-space-lts/core:latest
-    environment:
-      - TZ=Asia/Shanghai
-      - NODE_ENV=production
-      - DB_HOST=mongo
-      - REDIS_HOST=redis
-      - ALLOWED_ORIGINS=localhost
-      - JWT_SECRET=YOUR_SUPER_SECURED_JWT_SECRET_STRING
-    volumes:
-      - ./data/mx-space:/root/.mx-space
-    ports:
-      - '2333:2333'
-    depends_on:
-      - mongo
-      - redis
+    container_name: mx-server
     networks:
       - mx-space
     restart: unless-stopped
+
+    ports:
+      - '2333:2333'
+
+    environment:
+      PORT: "2333"
+      TZ: ${TZ:-Asia/Shanghai}
+      ALLOWED_ORIGINS: localhost:*
+
+      DB_CONNECTION_STRING: mongodb://mongo:27017/mx-space
+
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # REDIS_CONNECTION_STRING: ""
+      # REDIS_PASSWORD: ""
+
+      JWT_SECRET: YOUR_SUPER_SECURED_JWT_SECRET_STRING
+      # JWT_EXPIRE: 14 # in days
+
+      # Encryption (optional)
+      # ENCRYPT_KEY must be length 64 if ENCRYPT_ENABLE=true
+      ENCRYPT_ENABLE: false
+      # ENCRYPT_KEY: changemechangemechangemechangemechangemechangemechangemechangeme
+      # ENCRYPT_ALGORITHM: ""
+
+      DISABLE_CACHE: false
+
+      DEBUG: false
+      DEBUG_MEMORY_DUMP: false
+
+      # CLUSTER: false
+      # CLUSTER_WORKERS: ""
+
+      # THROTTLE_TTL: "60"
+      # THROTTLE_LIMIT: "60"
+
+      # CACHE_TTL: ""
+      # CDN_CACHE_HEADER: ""
+      # FORCE_CACHE_HEADER: ""
+
+      # MX_DISABLE_TELEMETRY: false
+
+      # HTTP_REQUEST_VERBOSE: false
+
+      
+      # CONFIG: ""
+
+    volumes:
+      - ./data/mx-space:/root/.mx-space
+
+    depends_on:
+      - mongo
+      - redis
+
     healthcheck:
-      test: [CMD, curl, -f, 'http://127.0.0.1:2333/api/v2/ping']
+      test: [CMD, curl, -f, "http://127.0.0.1:2333/api/v2/ping"]
       interval: 1m30s
       timeout: 30s
       retries: 5
       start_period: 30s
 
-  mongo:
-    container_name: mongo
-    image: mongo:7
-    volumes:
-      - ./data/db:/data/db
+  redis:
+    image: redis:7-alpine
+    container_name: mx-redis
     networks:
       - mx-space
     restart: unless-stopped
-
-  redis:
-    image: redis:alpine
-    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - ./data/redis:/data
     healthcheck:
-      test: [CMD-SHELL, 'redis-cli ping | grep PONG']
+      test: [CMD-SHELL, "redis-cli ping | grep PONG"]
       start_period: 20s
       interval: 30s
       retries: 5
       timeout: 3s
+
+  mongo:
+    image: mongo:7
+    container_name: mx-mongo
     networks:
       - mx-space
     restart: unless-stopped
+    command: ["mongod", "--bind_ip_all"]
+    volumes:
+      - ./data/db:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   mx-space:
