@@ -13,6 +13,11 @@
 
 import { MongoClient, ObjectId } from 'mongodb'
 import bcrypt from 'bcryptjs'
+import { readFileSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const MONGO_URI =
   process.env.MONGO_URI || 'mongodb://localhost:27017/mx-space'
@@ -24,6 +29,18 @@ const SEED_ADMIN = {
   password: process.env.SEED_ADMIN_PASSWORD || 'admin123',
   email: process.env.SEED_ADMIN_EMAIL || 'admin@example.com',
   name: process.env.SEED_ADMIN_NAME || 'Admin',
+}
+
+// ---- Shiro 状态函数源码 —— 从 ../snippets/shiro/functions/status.ts 加载，没有则跳过注入 ----
+function loadShiroStatusSource() {
+  const snippetPath = resolve(__dirname, '../../snippets/shiro/functions/status.ts')
+  try {
+    return readFileSync(snippetPath, 'utf-8')
+  } catch {
+    console.warn('   ⚠️  未找到 snippets/shiro/functions/status.ts，跳过状态函数注入')
+    console.warn('      将使用 Shiro 内置的 graceful degrade 逻辑（console.warn + 站长弹窗提示）')
+    return null
+  }
 }
 
 // ---- 预定义测试数据 ----
@@ -607,7 +624,7 @@ function generateAnalyzeRecord(baseTime) {
 async function printStats(db) {
   const collections = [
     'readers', 'posts', 'notes', 'pages', 'categories', 'comments',
-    'topics', 'links', 'options', 'analyzes',
+    'topics', 'links', 'options', 'analyzes', 'snippets',
   ]
   console.log('='.repeat(50))
   console.log('📋 数据统计：')
@@ -685,6 +702,81 @@ async function seedOwner(db, force) {
   console.log(`   ✅ 管理员: ${SEED_ADMIN.username} / ${SEED_ADMIN.password}\n`)
 }
 
+// ======== 注入 Shiro 配置文件与 Serverless 函数 ========
+
+async function seedShiroSnippets(db, force) {
+  console.log('🎨 注入 Shiro 配置...')
+
+  // ---- 1) 主题配置片段 (reference=theme, name=shiro) ----
+  // 注入空 YAML，全部由 Shiro 使用缺省默认值
+  const themeSnippetExists = await db.collection('snippets').countDocuments({
+    name: 'shiro',
+    reference: 'theme',
+  })
+
+  if (themeSnippetExists > 0 && !force) {
+    console.log('   ℹ️  Shiro 主题配置已存在，跳过。')
+  } else {
+    if (force) {
+      await db.collection('snippets').deleteMany({
+        name: 'shiro',
+        reference: 'theme',
+      })
+    }
+
+    await db.collection('snippets').insertOne({
+      _id: new ObjectId(),
+      name: 'shiro',
+      reference: 'theme',
+      type: 'yaml',
+      raw: '# 空配置，全部使用 Shiro 默认值\n',
+      private: false,
+      builtIn: false,
+      enable: true,
+      created: new Date(),
+      updated: new Date(),
+    })
+    console.log('   ✅ Shiro 主题配置片段已注入（空配置，使用默认值）')
+  }
+
+  // ---- 2) 状态函数片段 (reference=shiro, name=status) ----
+  const statusFnExists = await db.collection('snippets').countDocuments({
+    name: 'status',
+    reference: 'shiro',
+    type: 'function',
+  })
+
+  if (statusFnExists > 0 && !force) {
+    console.log('   ℹ️  Shiro 状态函数已存在，跳过。')
+  } else {
+    const source = loadShiroStatusSource()
+    if (!source) return
+
+    if (force) {
+      await db.collection('snippets').deleteMany({
+        name: 'status',
+        reference: 'shiro',
+        type: 'function',
+      })
+    }
+
+    await db.collection('snippets').insertOne({
+      _id: new ObjectId(),
+      name: 'status',
+      reference: 'shiro',
+      type: 'function',
+      method: 'ALL',
+      raw: source,
+      private: false,
+      builtIn: false,
+      enable: true,
+      created: new Date(),
+      updated: new Date(),
+    })
+    console.log('   ✅ Shiro 状态函数 (/fn/shiro/status) 已注入\n')
+  }
+}
+
 // ======== 主流程 ========
 
 async function main() {
@@ -705,6 +797,7 @@ async function main() {
       console.log('ℹ️  检测到已有测试数据，跳过数据初始化。')
       console.log('   如需重新初始化，请使用: node scripts/seed-dev-data.mjs --force\n')
       await seedOwner(db, false)
+      await seedShiroSnippets(db, false)
       await printStats(db)
       return
     }
@@ -719,7 +812,7 @@ async function main() {
     console.log('🗑️  清理旧测试数据...')
     const collections = [
       'posts', 'notes', 'pages', 'categories', 'comments',
-      'topics', 'links', 'options', 'analyzes',
+      'topics', 'links', 'options', 'analyzes', 'snippets',
     ]
     for (const col of collections) {
       try {
@@ -918,6 +1011,11 @@ async function main() {
     // 13. 创建管理员
     // -------------------------------------------------
     await seedOwner(db, true)
+
+    // -------------------------------------------------
+    // 14. 注入 Shiro 配置片段
+    // -------------------------------------------------
+    await seedShiroSnippets(db, true)
 
     // ---- 统计摘要 ----
     await printStats(db)
