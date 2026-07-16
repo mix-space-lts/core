@@ -1,11 +1,14 @@
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common'
 import { Catch, HttpException, HttpStatus, Logger } from '@nestjs/common'
+import type { FastifyReply, FastifyRequest } from 'fastify'
+
+import { RESILIENCE } from '~/app.config'
 import { EventScope } from '~/constants/business-event.constant'
 import { EventBusEvents } from '~/constants/event-bus.constant'
 import { ConfigsService } from '~/modules/configs/configs.service'
 import { BarkPushService } from '~/processors/helper/helper.bark.service'
 import { EventManagerService } from '~/processors/helper/helper.event.service'
-import type { FastifyReply, FastifyRequest } from 'fastify'
+
 import { getIp } from '../../utils/ip.util'
 import { BizException } from '../exceptions/biz.exception'
 
@@ -35,6 +38,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
     process.on('unhandledRejection', (reason: any) => {
       console.error('unhandledRejection:', reason)
+      if (RESILIENCE.crashOnUnhandledRejection) {
+        // Crash so the orchestrator can restart.
+        // Without this, a broken DB connection can leave the process alive
+        // but unable to serve requests.
+        process.exit(1)
+      }
     })
 
     process.on('uncaughtException', (err) => {

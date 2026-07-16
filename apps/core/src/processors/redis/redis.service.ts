@@ -3,33 +3,41 @@ import { Emitter } from '@socket.io/redis-emitter'
 import type { RedisOptions } from 'ioredis'
 import IORedis from 'ioredis'
 
-import { REDIS } from '~/app.config'
+import { REDIS, RESILIENCE } from '~/app.config'
 import { RedisIoAdapterKey } from '~/common/adapters/socket.adapter'
 import { API_CACHE_PREFIX } from '~/constants/cache.constant'
 import { getRedisKey } from '~/utils/redis.util'
+import { cappedRetryStrategy, crashOnRetryExhausted } from '~/utils/retry.util'
 
-export const REDIS_CLIENT_OPTIONS: RedisOptions = {
+export const REDIS_CLIENT_OPTIONS: Omit<RedisOptions, 'retryStrategy'> = {
   commandTimeout: 5000,
   connectTimeout: 10000,
   maxRetriesPerRequest: 3,
   enableOfflineQueue: false,
-  retryStrategy(times: number) {
-    return Math.min(times * 200, 5000)
-  },
 }
 
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name)
   private redisClient: IORedis
+  private readonly retryStrategy = cappedRetryStrategy(
+    RESILIENCE.redisMaxReconnectAttempts,
+    RESILIENCE.redisReconnectIntervalMs,
+    'RedisService',
+  )
+
   constructor() {
+    const baseOptions: RedisOptions = {
+      ...REDIS_CLIENT_OPTIONS,
+      retryStrategy: this.retryStrategy,
+    }
     if (REDIS.url) {
       this.redisClient = new IORedis(REDIS.url, {
         username: (REDIS as any).username,
         password: REDIS.password ?? undefined,
         db: (REDIS as any).db,
         ...(REDIS.tls ? { tls: {} } : {}),
-        ...REDIS_CLIENT_OPTIONS,
+        ...baseOptions,
       })
     } else {
       this.redisClient = new IORedis({
@@ -39,7 +47,7 @@ export class RedisService {
         password: REDIS.password ?? undefined,
         db: (REDIS as any).db,
         ...(REDIS.tls ? { tls: {} } : {}),
-        ...REDIS_CLIENT_OPTIONS,
+        ...baseOptions,
       })
     }
 
@@ -58,6 +66,9 @@ export class RedisService {
     })
     this.redisClient.on('close', () => {
       this.logger.warn(this.formatStateLog('Redis connection closed'))
+      if (this.retryStrategy.gaveUp()) {
+        crashOnRetryExhausted('RedisService')
+      }
     })
   }
 

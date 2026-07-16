@@ -1,8 +1,10 @@
 #!env node
 // register global
 import 'dotenv-expand/config'
+
 import cluster from 'node:cluster'
 import { cpus } from 'node:os'
+
 import { DEBUG_MODE } from './app.config.js'
 import { registerForMemoryDump } from './dump'
 import { logger } from './global/consola.global'
@@ -56,8 +58,11 @@ async function main() {
       bootstrap,
     )
   } else {
-    bootstrap()
+    await bootstrap()
   }
 }
 
-main()
+main().catch((err) => {
+  console.error('Startup failed:', err.message)
+  process.exit(1)
+})

@@ -4,7 +4,7 @@
 import mongoose from 'mongoose'
 import pc from 'picocolors'
 
-import { MONGO_DB } from '~/app.config'
+import { MONGO_DB, RESILIENCE } from '~/app.config'
 import type { CollectionRefTypes } from '~/constants/db.constant'
 import {
   NOTE_COLLECTION_NAME,
@@ -23,11 +23,16 @@ export const getDatabaseConnection = () => {
     return databaseConnectionPromise
   }
   let reconnectionTask: NodeJS.Timeout | null = null
-  const RECONNECT_INTERVAL = 6000
+  const RECONNECT_INTERVAL = RESILIENCE.mongoReconnectIntervalMs
+  const MAX_RECONNECT_ATTEMPTS = RESILIENCE.mongoMaxReconnectAttempts
+  let reconnectCount = 0
 
   const connection = () => {
     return mongoose
-      .createConnection(MONGO_DB.customConnectionString || MONGO_DB.uri, {})
+      .createConnection(MONGO_DB.customConnectionString || MONGO_DB.uri, {
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 5000,
+      })
       .asPromise()
   }
   const Badge = `[${pc.yellow('MongoDB')}]`
@@ -41,6 +46,7 @@ export const getDatabaseConnection = () => {
 
   mongoose.connection.on('open', () => {
     logger.info(Badge, color`readied!`)
+    reconnectCount = 0
     if (reconnectionTask) {
       clearTimeout(reconnectionTask)
       reconnectionTask = null
@@ -48,9 +54,21 @@ export const getDatabaseConnection = () => {
   })
 
   mongoose.connection.on('disconnected', () => {
+    reconnectCount++
+    if (reconnectCount > MAX_RECONNECT_ATTEMPTS) {
+      logger.error(
+        Badge,
+        pc.red(
+          `Failed to reconnect after ${MAX_RECONNECT_ATTEMPTS} attempts. Crashing process so orchestrator can restart.`,
+        ),
+      )
+      process.exit(1)
+    }
     logger.error(
       Badge,
-      pc.red(`disconnected! retry when after ${RECONNECT_INTERVAL / 1000}s`),
+      pc.red(
+        `disconnected! retry ${reconnectCount}/${MAX_RECONNECT_ATTEMPTS} when after ${RECONNECT_INTERVAL / 1000}s`,
+      ),
     )
     reconnectionTask = setTimeout(connection, RECONNECT_INTERVAL)
   })
