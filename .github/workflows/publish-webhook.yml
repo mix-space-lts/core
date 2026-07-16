@@ -49,7 +49,7 @@ jobs:
       - name: Bump version (if provided)
         if: ${{ github.event.inputs.version != '' }}
         run: |
-          pnpm version "${{ github.event.inputs.version }}" --no-git-tag-version
+          pnpm version "${{ github.event.inputs.version }}" --no-git-tag-version || true
 
       - name: Build
         run: pnpm run build
