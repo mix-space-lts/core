@@ -8,7 +8,13 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify'
 import pc from 'picocolors'
 import wcmatch from 'wildcard-match'
 
-import { CROSS_DOMAIN, DEBUG_MODE, PORT, TELEMETRY } from './app.config'
+import {
+  CROSS_DOMAIN,
+  DEBUG_MODE,
+  PORT,
+  RESILIENCE,
+  TELEMETRY,
+} from './app.config'
 import { AppModule } from './app.module'
 import { fastifyApp } from './common/adapters/fastify.adapter'
 import { RedisIoAdapter } from './common/adapters/socket.adapter'
@@ -18,6 +24,7 @@ import { extendedZodValidationPipeInstance } from './common/zod'
 import { logger } from './global/consola.global'
 import { isDev, isMainProcess, isTest } from './global/env.global'
 import { checkInit } from './utils/check-init.util'
+import { redisSubPub } from './utils/redis-subpub.util'
 import {
   sendTelemetry,
   startHeartbeat,
@@ -28,8 +35,25 @@ const Origin: false | string[] = Array.isArray(CROSS_DOMAIN.allowedOrigins)
   ? [...CROSS_DOMAIN.allowedOrigins]
   : false
 
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(message)), ms),
+    ),
+  ])
+}
+
 export async function bootstrap() {
-  const isInit = await checkInit()
+  const isInit = await withTimeout(
+    checkInit(),
+    RESILIENCE.startupTimeoutMs,
+    `MongoDB connection timed out after ${RESILIENCE.startupTimeoutMs}ms. Is MongoDB running?`,
+  )
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule.register(isInit),
@@ -80,7 +104,16 @@ export async function bootstrap() {
 
   app.useGlobalPipes(extendedZodValidationPipeInstance)
   app.useGlobalGuards(new SpiderGuard())
-  !isTest && app.useWebSocketAdapter(new RedisIoAdapter(app))
+
+  if (!isTest) {
+    const redisReady = await redisSubPub.waitUntilReady(5000)
+    if (!redisReady) {
+      logger.error(
+        'Redis not ready after 5s — WebSocket will use fallback adapter (broadcast limited to single process).',
+      )
+    }
+    app.useWebSocketAdapter(new RedisIoAdapter(app))
+  }
 
   await app.listen(
     {

@@ -2,9 +2,10 @@ import { Logger } from '@nestjs/common'
 import type { Redis, RedisOptions } from 'ioredis'
 import IORedis from 'ioredis'
 
-import { REDIS } from '~/app.config'
+import { REDIS, RESILIENCE } from '~/app.config'
 
 import { isTest } from '../global/env.global'
+import { cappedRetryStrategy, crashOnRetryExhausted } from './retry.util'
 
 class RedisSubPub {
   private readonly logger = new Logger(RedisSubPub.name)
@@ -19,6 +20,12 @@ class RedisSubPub {
   }
 
   public init() {
+    const retryStrategy = cappedRetryStrategy(
+      RESILIENCE.redisMaxReconnectAttempts,
+      RESILIENCE.redisReconnectIntervalMs,
+      'RedisSubPub',
+    )
+
     const baseOptions: RedisOptions = {
       host: REDIS.host,
       port: REDIS.port,
@@ -29,9 +36,7 @@ class RedisSubPub {
       connectTimeout: 10000,
       maxRetriesPerRequest: 3,
       enableOfflineQueue: false,
-      retryStrategy(times: number) {
-        return Math.min(times * 200, 5000)
-      },
+      retryStrategy,
     }
 
     if (REDIS.password) {
@@ -60,9 +65,48 @@ class RedisSubPub {
       })
       client.on('close', () => {
         this.logger.warn(`RedisSubPub [${name}] connection closed`)
+        if (retryStrategy.gaveUp()) {
+          crashOnRetryExhausted(`RedisSubPub [${name}]`)
+        }
       })
     }
   }
+
+  public waitUntilReady(timeoutMs: number = 5000): Promise<boolean> {
+    const isReady = () =>
+      !!(
+        this.pubClient &&
+        this.subClient &&
+        this.pubClient.status === 'ready' &&
+        this.subClient.status === 'ready'
+      )
+
+    if (isReady()) return Promise.resolve(true)
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        cleanup()
+        resolve(false)
+      }, timeoutMs)
+
+      const onReady = () => {
+        if (isReady()) {
+          cleanup()
+          resolve(true)
+        }
+      }
+
+      const cleanup = () => {
+        clearTimeout(timer)
+        this.pubClient?.removeListener('ready', onReady)
+        this.subClient?.removeListener('ready', onReady)
+      }
+
+      this.pubClient?.on('ready', onReady)
+      this.subClient?.on('ready', onReady)
+    })
+  }
+
   public async publish(event: string, data: any) {
     const channel = this.channelPrefix + event
     const _data = JSON.stringify(data)
