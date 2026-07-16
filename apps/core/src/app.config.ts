@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs'
 import https from 'node:https'
 import path from 'node:path'
+
 import { seconds } from '@nestjs/throttler'
 import type { AxiosRequestConfig } from 'axios'
 import { program } from 'commander'
 import { load as yamlLoad } from 'js-yaml'
 import nodeMachineId from 'node-machine-id'
+
 import { isDebugMode, isDev } from './global/env.global'
 import { parseBooleanishValue } from './utils/tool.util'
 
@@ -191,6 +193,32 @@ const commander = program
   // telemetry
   .option('--disable_telemetry', 'disable anonymous telemetry')
 
+  // resilience
+  .option(
+    '--mongo_max_reconnect_attempts <number>',
+    'max MongoDB reconnect attempts before crash (default 10)',
+  )
+  .option(
+    '--mongo_reconnect_interval_ms <number>',
+    'MongoDB reconnect interval in ms (default 6000)',
+  )
+  .option(
+    '--startup_timeout_ms <number>',
+    'startup timeout in ms before crash (default 15000)',
+  )
+  .option(
+    '--crash_on_unhandled_rejection',
+    'crash process on unhandled promise rejection (default true)',
+  )
+  .option(
+    '--redis_max_reconnect_attempts <number>',
+    'max Redis reconnect attempts before crash (default 10)',
+  )
+  .option(
+    '--redis_reconnect_interval_ms <number>',
+    'Redis reconnect base interval in ms (default 200)',
+  )
+
 commander.parse()
 
 const argv = commander.opts()
@@ -349,4 +377,14 @@ if (ENCRYPT.enable && (!ENCRYPT.key || ENCRYPT.key.length !== 64))
 
 export const TELEMETRY = {
   enable: !parseBooleanishValue(argv.disable_telemetry ?? MX_DISABLE_TELEMETRY),
+}
+
+export const RESILIENCE = {
+  mongoMaxReconnectAttempts: Number(argv.mongo_max_reconnect_attempts ?? 10),
+  mongoReconnectIntervalMs: Number(argv.mongo_reconnect_interval_ms ?? 6000),
+  redisMaxReconnectAttempts: Number(argv.redis_max_reconnect_attempts ?? 10),
+  redisReconnectIntervalMs: Number(argv.redis_reconnect_interval_ms ?? 200),
+  startupTimeoutMs: Number(argv.startup_timeout_ms ?? 15000),
+  crashOnUnhandledRejection:
+    parseBooleanishValue(argv.crash_on_unhandled_rejection) ?? true,
 }

@@ -16,10 +16,16 @@ services:
 
       DB_CONNECTION_STRING: mongodb://mongo:27017/mx-space
 
+      # MONGO_MAX_RECONNECT_ATTEMPTS: 10
+      # MONGO_RECONNECT_INTERVAL_MS: 6000
+
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       # REDIS_CONNECTION_STRING: ""
       # REDIS_PASSWORD: ""
+
+      # REDIS_MAX_RECONNECT_ATTEMPTS: 10
+      # REDIS_RECONNECT_INTERVAL_MS: 200
 
       JWT_SECRET: YOUR_SUPER_SECURED_JWT_SECRET_STRING
       # JWT_EXPIRE: 14 # in days
@@ -37,6 +43,9 @@ services:
 
       # CLUSTER: false
       # CLUSTER_WORKERS: ""
+
+      # STARTUP_TIMEOUT_MS: 15000
+      # CRASH_ON_UNHANDLED_REJECTION: true
 
       # THROTTLE_TTL: "60"
       # THROTTLE_LIMIT: "60"
