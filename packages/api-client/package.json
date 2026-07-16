@@ -1,6 +1,6 @@
 {
   "name": "@mix-space-lts/api-client",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "A api client for mix-space-lts server@next",
   "type": "module",
   "engines": {

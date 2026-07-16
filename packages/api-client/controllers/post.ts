@@ -30,6 +30,8 @@ export type PostListOptions = {
   truncate?: number
   /** 语言代码，用于获取翻译版本 */
   lang?: string
+  /** 按分类 ID 筛选 */
+  categoryIds?: string[]
 }
 
 /** 文章列表项，可能包含翻译信息 */
@@ -59,7 +61,8 @@ export class PostController<ResponseWrapper> implements IController {
    * @returns 当传入 lang 时，返回的文章可能包含 isTranslated 和 translationMeta 字段
    */
   getList(page = 1, perPage = 10, options: PostListOptions = {}) {
-    const { select, sortBy, sortOrder, year, truncate, lang } = options
+    const { select, sortBy, sortOrder, year, truncate, lang, categoryIds } =
+      options
     return this.proxy.get<PaginateResult<PostListItem>>({
       params: {
         page,
@@ -70,6 +73,7 @@ export class PostController<ResponseWrapper> implements IController {
         year,
         truncate,
         lang,
+        categoryIds: categoryIds?.join(','),
       },
     })
   }
