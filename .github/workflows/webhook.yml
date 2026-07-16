@@ -16,6 +16,16 @@ on:
     paths:
       - 'packages/webhook/**'
       - .github/workflows/webhook.yml
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g. 2.4.4-rc.1). Leave empty to use package.json version.'
+        required: false
+        type: string
+      tag:
+        description: 'npm dist-tag (e.g. rc, beta, alpha). Leave empty to skip publish.'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -39,3 +49,30 @@ jobs:
           pnpm run build
         env:
           CI: true
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: 22
+
+      - name: Bump version
+        if: github.event.inputs.version != ''
+        working-directory: ./packages/webhook
+        run: pnpm version ${{ github.event.inputs.version }} --no-git-tag-version
+
+      - name: Build
+        working-directory: ./packages/webhook
+        run: pnpm run build
+
+      - name: Publish pre-release
+        working-directory: ./packages/webhook
+        run: npm publish --provenance --access public --tag ${{ github.event.inputs.tag }}
