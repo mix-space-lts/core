@@ -11,10 +11,8 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
-import type { BroadcastOperator, Emitter } from '@socket.io/redis-emitter'
 import { debounce, uniqBy } from 'es-toolkit/compat'
 import type SocketIO from 'socket.io'
-import { DefaultEventsMap } from 'socket.io'
 
 import { BusinessEvents } from '~/constants/business-event.constant'
 import { RedisKeys } from '~/constants/cache.constant'
@@ -219,10 +217,8 @@ export class WebEventsGateway
 
   whenUserOnline = debounce(
     async () => {
-      this.broadcast(
-        BusinessEvents.VISITOR_ONLINE,
-        await this.sendOnlineNumber(),
-      )
+      const onlineData = await this.sendOnlineNumber()
+      this.broadcast(BusinessEvents.VISITOR_ONLINE, onlineData)
 
       scheduleManager.schedule(async () => {
         const redisClient = this.redisService.getClient()
@@ -275,11 +271,15 @@ export class WebEventsGateway
       exclude?: string[]
     },
   ) {
-    const emitter = this.redisService.emitter
+    // Broadcast through the socket.io namespace, which routes through the
+    // Redis adapter (when configured). Multi-node deployments are supported:
+    // the adapter publishes to Redis and sibling nodes replay via their adapters.
+    //
+    // We avoid @socket.io/redis-emitter@5.x because its notepack.io v3 encoder
+    // is incompatible with @socket.io/redis-adapter@8.x's notepack.io v2 decoder,
+    // causing all cross-node messages to be silently dropped.
+    let socket: any = this.namespace
 
-    let socket = emitter.of(`/${namespace}`) as
-      | Emitter<DefaultEventsMap>
-      | BroadcastOperator<DefaultEventsMap>
     const rooms = options?.rooms
     const exclude = options?.exclude
 

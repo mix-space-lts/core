@@ -4,8 +4,7 @@ import type {
   OnGatewayDisconnect,
 } from '@nestjs/websockets'
 import { WebSocketServer } from '@nestjs/websockets'
-import type { BroadcastOperator, Emitter } from '@socket.io/redis-emitter'
-import type { DefaultEventsMap, Namespace, Socket } from 'socket.io'
+import type { Namespace, Socket } from 'socket.io'
 
 import { EventBusEvents } from '~/constants/event-bus.constant'
 import { AuthService } from '~/modules/auth/auth.service'
@@ -125,9 +124,9 @@ export const createAuthGateway = (
         exclude?: string[]
       },
     ) {
-      let socket = this.redisService.emitter.of(`/${namespace}`) as
-        | Emitter<DefaultEventsMap>
-        | BroadcastOperator<DefaultEventsMap>
+      // Use local namespace emit instead of Redis Emitter.
+      // @socket.io/redis-emitter@5.x is incompatible with @socket.io/redis-adapter@8.x.
+      let socket = this.namespace as any
 
       if (options?.rooms?.length) {
         socket = socket.in(options.rooms)

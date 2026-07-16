@@ -10,8 +10,6 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import type { BroadcastOperator, Emitter } from '@socket.io/redis-emitter'
-import type { DefaultEventsMap } from 'socket.io'
 import type SocketIO from 'socket.io'
 
 import { BusinessEvents } from '~/constants/business-event.constant'
@@ -43,9 +41,11 @@ export class AdminEventsGateway
     data: any,
     options?: { rooms?: string[]; exclude?: string[] },
   ) {
-    let socket = this.redisService.emitter.of('/admin') as
-      | Emitter<DefaultEventsMap>
-      | BroadcastOperator<DefaultEventsMap>
+    // Broadcast through the socket.io namespace, which routes through the
+    // Redis adapter (when configured). Avoids the @socket.io/redis-emitter@5.x
+    // incompatibility with @socket.io/redis-adapter@8.x (notepack.io v3 vs v2).
+
+    let socket: any = (this as any).namespace
 
     if (options?.rooms?.length) {
       socket = socket.in(options.rooms)
