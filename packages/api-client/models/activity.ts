@@ -66,6 +66,7 @@ export interface RecentComment {
   type: string
   avatar: string
   nid?: string
+  categorySlug?: string
 }
 
 export interface RecentLike {
@@ -75,6 +76,7 @@ export interface RecentLike {
   nid?: number
   slug?: string
   title: string
+  categorySlug?: string
 }
 
 export interface RecentNote {
@@ -91,6 +93,7 @@ export interface RecentPost {
   title: string
   modified: string
   slug: string
+  categorySlug?: string
 }
 
 export interface RecentRecent {
