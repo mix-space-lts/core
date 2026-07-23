@@ -11,6 +11,7 @@ import { TranslationService } from '~/processors/helper/helper.translation.servi
 import { PagerDto } from '~/shared/dto/pager.dto'
 import { snakecaseKeysWithCompat } from '~/utils/case.util'
 import { keyBy, pick } from 'es-toolkit/compat'
+import { ObjectId } from 'mongodb'
 import { ReaderService } from '../reader/reader.service'
 import { Activity } from './activity.constant'
 import {
@@ -297,6 +298,9 @@ export class ActivityController {
 
     let transformedLike = [] as any[]
 
+    // 收集 like 中 post 引用的 categoryId，用于批量查询分类 slug
+    const likePostCategoryIds = new Set<string>()
+
     for (const item of like.data) {
       const likeData = pick(item, 'created', 'id') as any
 
@@ -309,12 +313,40 @@ export class ActivityController {
         } else {
           likeData.type = CollectionRefTypes.Post
           likeData.slug = item.ref.slug
+          if ((item.ref as any).categoryId) {
+            likePostCategoryIds.add(
+              String((item.ref as any).categoryId),
+            )
+          }
         }
         likeData.title = item.ref.title
         likeData._articleId = (item as any).payload?.id
       }
 
       transformedLike.push(likeData)
+    }
+
+    // 批量查询分类 slug
+    let categorySlugMap = new Map<string, string>()
+    if (likePostCategoryIds.size > 0) {
+      categorySlugMap = await this.service.getCategorySlugMap([
+        ...likePostCategoryIds,
+      ])
+    }
+
+    // 为 like 中的 post 补充 categorySlug
+    for (const item of transformedLike) {
+      if (item.type === CollectionRefTypes.Post) {
+        const likeItem = like.data.find((l) => l.id === item.id)
+        const categoryId = likeItem?.ref
+          ? String((likeItem.ref as any).categoryId)
+          : undefined
+        if (categoryId) {
+          item.categorySlug = categorySlugMap.get(
+            new ObjectId(categoryId).toHexString(),
+          )
+        }
+      }
     }
 
     let post = recentPublish.post as any[]

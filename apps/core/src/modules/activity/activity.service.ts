@@ -5,6 +5,7 @@ import { BizException } from '~/common/exceptions/biz.exception'
 import { ArticleTypeEnum } from '~/constants/article.constant'
 import { BusinessEvents, EventScope } from '~/constants/business-event.constant'
 import {
+  CATEGORY_COLLECTION_NAME,
   NOTE_COLLECTION_NAME,
   POST_COLLECTION_NAME,
   RECENTLY_COLLECTION_NAME,
@@ -548,11 +549,29 @@ export class ActivityService implements OnModuleInit, OnModuleDestroy {
       .limit(3)
 
     await this.commentService.fillAndReplaceAvatarUrl(docs)
-    return docs.map((doc) => ({
-      ...pick(doc, 'created', 'author', 'text', 'avatar'),
-      ...pick(doc.ref, 'title', 'nid', 'slug', 'id'),
-      type: checkRefModelCollectionType(doc.ref),
-    }))
+
+    // 为文章评论补充分类 slug，用于前端拼接正确的文章链接
+    const categoryIds = [
+      ...new Set(
+        docs
+          .map((doc) => (doc.ref as any)?.categoryId)
+          .filter(Boolean)
+          .map((id) => String(id)),
+      ),
+    ]
+    const categorySlugMap = await this.getCategorySlugMap(categoryIds)
+
+    return docs.map((doc) => {
+      const categoryId = (doc.ref as any)?.categoryId
+      return {
+        ...pick(doc, 'created', 'author', 'text', 'avatar'),
+        ...pick(doc.ref, 'title', 'nid', 'slug', 'id'),
+        type: checkRefModelCollectionType(doc.ref),
+        categorySlug: categoryId
+          ? categorySlugMap.get(new ObjectId(categoryId).toHexString())
+          : undefined,
+      }
+    })
   }
 
   async getRecentPublish() {
@@ -579,7 +598,6 @@ export class ActivityService implements OnModuleInit, OnModuleDestroy {
           slug: 1,
           created: 1,
           modified: 1,
-          category: 1,
           categoryId: 1,
         })
         .sort({
@@ -606,11 +624,65 @@ export class ActivityService implements OnModuleInit, OnModuleDestroy {
         .toArray(),
     ])
 
+    // 查找文章对应的分类 slug，用于前端拼接正确的文章链接
+    const categoryIds = [
+      ...new Set(
+        post
+          .map((p) => p.categoryId)
+          .filter(Boolean)
+          .map((id) => new ObjectId(id as any)),
+      ),
+    ]
+
+    const categories = categoryIds.length
+      ? await this.databaseService.db
+          .collection(CATEGORY_COLLECTION_NAME)
+          .find({ _id: { $in: categoryIds } })
+          .project({ slug: 1 })
+          .toArray()
+      : []
+
+    const categorySlugMap = new Map(
+      categories.map((c) => [c._id.toHexString(), c.slug]),
+    )
+
+    const postWithCategory = post.map((p) => ({
+      ...p,
+      categorySlug: p.categoryId
+        ? categorySlugMap.get(new ObjectId(p.categoryId as any).toHexString())
+        : undefined,
+    }))
+
     return {
       recent,
-      post,
+      post: postWithCategory,
       note,
     }
+  }
+
+  /**
+   * 根据分类 ID 批量查询分类 slug
+   */
+  async getCategorySlugMap(
+    categoryIds: (string | ObjectId)[],
+  ): Promise<Map<string, string>> {
+    const ids = [
+      ...new Set(
+        categoryIds
+          .filter(Boolean)
+          .map((id) => new ObjectId(id as any).toHexString()),
+      ),
+    ]
+
+    if (ids.length === 0) return new Map()
+
+    const categories = await this.databaseService.db
+      .collection(CATEGORY_COLLECTION_NAME)
+      .find({ _id: { $in: ids.map((id) => new ObjectId(id)) } })
+      .project({ slug: 1 })
+      .toArray()
+
+    return new Map(categories.map((c) => [c._id.toHexString(), c.slug as string]))
   }
 
   /**
