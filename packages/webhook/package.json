@@ -1,6 +1,10 @@
 {
   "name": "@mix-space-lts/webhook",
   "version": "0.8.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mix-space-lts/core"
+  },
   "publishConfig": {
     "access": "public"
   },

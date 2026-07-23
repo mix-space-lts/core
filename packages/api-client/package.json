@@ -8,6 +8,10 @@
   },
   "license": "MIT",
   "author": "Innei",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mix-space-lts/core"
+  },
   "publishConfig": {
     "access": "public"
   },
